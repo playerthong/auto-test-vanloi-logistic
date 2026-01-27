@@ -1,0 +1,34 @@
+{
+  "name": "auto-test-vanloi-logistic",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "npx playwright test",
+    "test_file": "npx playwright test example.spec.ts",
+    "test_chrome": "npx playwright test --project=chrome",
+    "test:ui": "npx playwright test --ui",
+    "test:debug": "npx playwright test --debug",
+    "test:coverage": "npx playwright test --coverage",
+    "test:report": "npx playwright show-report"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/playerthong/auto-test-vanloi-logistic.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/playerthong/auto-test-vanloi-logistic/issues"
+  },
+  "homepage": "https://github.com/playerthong/auto-test-vanloi-logistic#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.58.0",
+    "@types/node": "^25.0.10"
+  },
+  "dependencies": {
+    "dotenv": "^17.2.3"
+  }
+}

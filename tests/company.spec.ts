@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import { CompanyPage } from '../pages/CompanyPage';
 import { LoginPage } from '../pages/LoginPage';
 import { BASE_URL, ACCOUNT } from "../utils/const";
-import { companyData } from '../data_testing/company.ts';
+import { companyData } from '../data_testing/company';
 
 test('Tạo được công ty mới từ dữ liệu JSON', async ({ page }) => {
     const loginPage = new LoginPage(page);

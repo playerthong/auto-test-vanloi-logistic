@@ -1,0 +1,11 @@
+[
+  {
+    "route": "Giao hàng Bình Thạnh",
+    "vehicleModelGroup": "1T",
+    "vehicle": "50H-67035",
+    "mainDriver": "nga",
+    "startTime": "2026-01-28T08:00:00.000Z",
+    "endTime": "2026-01-28T17:00:00.000Z",
+    "note": "Created from JSON data auto"
+  }
+]

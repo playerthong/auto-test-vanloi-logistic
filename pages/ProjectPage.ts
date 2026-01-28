@@ -43,39 +43,21 @@ export class ProjectPage {
         this.backButton = page.getByRole('button', { name: /Quay lại/i });
     }
     async selectAutocompleteOption(labelRegex: RegExp) {
-        // 1. Locate the container based on the label and find its input
-        const container = this.page.locator('div').filter({ hasText: labelRegex });
-        const input = container.locator('input');
+        // 1. Tìm container bọc ngoài cùng có chứa text "Công ty *"
+        const container = this.page.locator('div.MuiBox-root').filter({ hasText: /^Công ty \*/ });
 
-        // 2. Click to open the dropdown
-        await input.click({ force: true });
+        // 2. Từ container đó, tìm input có role combobox
+        const input = container.locator('input[role="combobox"]');
+        console.log(`Số lượng input tìm thấy: ${await input.count()}`);
 
-        // 3. Locate the listbox
-        const listbox = this.page.locator('ul[role="listbox"]');
+        // 2. Click để mở dropdown
+        // Đảm bảo element sẵn sàng trước khi click
+        await input.waitFor({ state: 'visible' });
+        await input.click();
 
-        // 4. Wait for the listbox to be visible
-        await expect(listbox).toBeVisible({ timeout: 10000 });
-
-        /** * 5. CHECK LOAD STATUS:
-         * We wait until at least one option (li) exists AND it does not have 
-         * placeholder text like "Loading..." or "No options".
-         */
-        const firstOption = listbox.locator('li[role="option"]').first();
-
-        // Ensure the first option is attached and visible
-        await expect(firstOption).toBeVisible({ timeout: 10000 });
-
-        // Optional: If your app shows a "Loading..." li item, wait for it to disappear
-        const loadingMessage = listbox.getByText(/Loading|Đang tải/i);
-        if (await loadingMessage.isVisible()) {
-            await expect(loadingMessage).toBeHidden({ timeout: 10000 });
-        }
-
-        // 6. Final verification: Ensure the option has actual text content 
-        // (This prevents clicking an empty/ghost row during render)
-        await expect(firstOption).not.toBeEmpty();
-
-        // 7. Click the first valid option
+        // 3. Chọn option đầu tiên xuất hiện trong listbox
+        const firstOption = this.page.locator('ul[role="listbox"] li').first();
+        await firstOption.waitFor({ state: 'visible' });
         await firstOption.click();
     };
     async goto() {
@@ -113,7 +95,29 @@ export class ProjectPage {
     async fillDescription(desc: string) {
         await this.descriptionInput.fill(desc);
     }
+    async fillDatePicker(label: string, dateString: string) {
+        // 1. Tìm container chứa label tương ứng gần nhất
+        const container = this.page.locator('div.MuiBox-root').filter({
+            has: this.page.locator('p', { hasText: label })
+        }).last();
+        const date = new Date(dateString);
+        const targetYear = date.getUTCFullYear();
+        const targetMonth = date.getUTCMonth() + 1;
+        const targetDay = date.getUTCDate();
+        const targetHours = date.getUTCHours();
+        const targetMinutes = date.getUTCMinutes();
+        await container.highlight();
+        console.log("target date", `${targetDay}/${targetMonth}/${targetYear}`)
+        await container.getByRole('spinbutton', { name: 'Day' }).first().fill(targetDay.toString());
 
+        await container.getByRole('spinbutton', { name: 'Month' }).first().fill(targetMonth.toString());
+        await container.getByRole('spinbutton', { name: 'Year' }).first().fill(targetYear.toString());
+        await container.getByRole('spinbutton', { name: 'Hours' }).first().fill(targetHours.toString());
+        await container.getByRole('spinbutton', { name: 'Minutes' }).first().fill(targetMinutes.toString());
+
+        // Đôi khi cần nhấn Enter để xác nhận giá trị trong MUI
+        // await dateInput.press('Enter');
+    }
     async fillDate(locator: Locator, dateString: string) {
         // Expecting dateString in format compatible with input, e.g., "DD/MM/YYYY HH:mm"
         await locator.click(); // Focus
@@ -124,11 +128,11 @@ export class ProjectPage {
     }
 
     async enterStartDate(dateString: string) {
-        await this.fillDate(this.startDateInput, dateString);
+        await this.fillDatePicker("Ngày bắt đầu *", dateString);
     }
 
     async enterEndDate(dateString: string) {
-        await this.fillDate(this.endDateInput, dateString);
+        await this.fillDatePicker("Ngày kết thúc *", dateString);
     }
 
     async submit() {
@@ -144,7 +148,7 @@ export class ProjectPage {
         region: string;
         description?: string;
     }) {
-        await this.selectAutocompleteOption(/^Công ty \(\*\)$/);
+        await this.selectAutocompleteOption(/^Công ty/);
         await this.fillProjectName(data.name);
 
         if (typeof data.active === 'boolean') {
